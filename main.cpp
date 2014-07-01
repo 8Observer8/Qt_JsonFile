@@ -16,15 +16,6 @@ int main( )
     persons.push_back( ivan );
 
     try {
-    } catch ( const LogicError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( ... ) {
-        std::cerr << "Error: unknown exception" << std::endl;
-        return 1;
-    }
-
-    try {
         // Parse the person array to the Json-content
         QJsonDocument content;
         parsePersonsToContent( persons, content );
