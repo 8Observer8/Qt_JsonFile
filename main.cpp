@@ -15,64 +15,38 @@ int main( )
     persons.push_back( david );
     persons.push_back( ivan );
 
-    // Parse the person array to the Json-content
-    QJsonDocument content;
     try {
+    } catch ( const LogicError &e ) {
+        std::cerr << e.what( ) << std::endl;
+        return 1;
+    } catch ( ... ) {
+        std::cerr << "Error: unknown exception" << std::endl;
+        return 1;
+    }
+
+    try {
+        // Parse the person array to the Json-content
+        QJsonDocument content;
         parsePersonsToContent( persons, content );
-    } catch ( const LogicError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( ... ) {
-        std::cerr << "Error: unknown exception" << std::endl;
-        return 1;
-    }
 
-    // Write the Json-content to the file
-    QString fileName = "Persons.json";
-    try {
+        // Write the Json-content to the file
+        QString fileName = "Persons.json";
         writeData( fileName, content );
-    } catch ( const LogicError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( const FileError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( ... ) {
-        std::cerr << "Error: unknown exception" << std::endl;
-        return 1;
-    }
 
-    // Read the Json-content from the file
-    QJsonDocument readContent;
-    try {
+        // Read the Json-content from the file
+        QJsonDocument readContent;
         readData( fileName, readContent );
-    } catch ( const LogicError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( const FileError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( ... ) {
-        std::cerr << "Error: unknown exception" << std::endl;
-        return 1;
-    }
 
-    // Parse the Json-content to the person array
-    std::vector<Person> readPersons;
-    try {
+        // Parse the Json-content to the person array
+        std::vector<Person> readPersons;
         parseContentToPersons( readContent, readPersons );
-    } catch ( const LogicError &e ) {
-        std::cerr << e.what( ) << std::endl;
-        return 1;
-    } catch ( ... ) {
-        std::cerr << "Error: unknown exception" << std::endl;
-        return 1;
-    }
 
-    // Print the person array to the screen
-    try {
+        // Print the person array to the screen
         printData( readPersons );
     } catch ( const LogicError &e ) {
+        std::cerr << e.what( ) << std::endl;
+        return 1;
+    } catch ( const FileError &e ) {
         std::cerr << e.what( ) << std::endl;
         return 1;
     } catch ( ... ) {
