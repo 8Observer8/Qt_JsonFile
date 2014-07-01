@@ -2,20 +2,63 @@
 #include <iostream>
 
 #include <QFile>
+#include <QString>
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QJsonDocument>
 
 #include "freeFunctions.h"
 
+void parsePersonsToContent( const std::vector<Person> &persons,
+                            QJsonDocument &content )
+throw ( EmptyArgument )
+{
+    std::string functionName = "parsePersonsToContent()";
+
+    // Check the input argument
+    if ( persons.empty( ) ) {
+        throw EmptyArgument( functionName );
+    }
+
+    // Fill the output array
+    QJsonArray personsObjectArray;
+    for( std::size_t i = 0; i < persons.size( ); ++i ) {
+        QJsonObject personObject;
+        persons[i].write( personObject );
+        personsObjectArray.append( personObject );
+    }
+
+    // Result
+    content.setArray( personsObjectArray );
+}
+
+void parseContentToPersons( const QJsonDocument &content,
+                            std::vector<Person> &persons )
+throw ( EmptyArgument )
+{
+    std::string functionName = "parseContentToPersons()";
+
+    // Check the input argument
+    if ( content.isEmpty( ) ) {
+        throw EmptyArgument( functionName );
+    }
+
+    QJsonArray personsObjectArray = content.array( );
+    for ( std::size_t i = 0; i < personsObjectArray.size( ); ++i ) {
+        Person person;
+        QJsonObject personObject = personsObjectArray[i].toObject( );
+        person.read( personObject );
+        persons.push_back( person );
+    }
+}
+
 void writeData( const QString &fileName,
-                const std::vector<Person> &persons )
+                const QJsonDocument &content )
 throw ( EmptyArgument, FileOpenError, FileWriteError )
 {
     std::string functionName = "writeData()";
 
     // Check arguments
-    if ( fileName.isEmpty( ) || persons.empty( ) ) {
+    if ( fileName.isEmpty( ) || content.isEmpty( ) ) {
         throw EmptyArgument( functionName );
     }
 
@@ -26,23 +69,13 @@ throw ( EmptyArgument, FileOpenError, FileWriteError )
     }
 
     // Write data to the output file
-    QJsonArray jsonArray;
-    for ( std::size_t i = 0; i < persons.size( ); i++ ) {
-        QJsonObject person;
-        persons[i].write( person );
-        jsonArray.append( person );
-    }
-
-    QJsonObject jsonPersons;
-    jsonPersons["Persons"] = jsonArray;
-    QJsonDocument saveDoc( jsonPersons );
-    if ( !file.write( saveDoc.toJson( ) ) ) {
+    if ( !file.write( content.toJson( ) ) ) {
         throw FileWriteError( fileName.toStdString( ), functionName );
     }
 }
 
 void readData(const QString &fileName,
-              std::vector<Person> &persons )
+              QJsonDocument &content )
 throw ( EmptyArgument, FileOpenError, FileReadError )
 {
     std::string functionName = "readData()";
@@ -60,16 +93,7 @@ throw ( EmptyArgument, FileOpenError, FileReadError )
 
     // Read data from the file
     QByteArray data = file.readAll( );
-    QJsonDocument readDoc( QJsonDocument::fromJson( data ) );
-    QJsonObject personsObject = readDoc.object();
-    QJsonArray personsArray = personsObject["Persons"].toArray();
-
-    for ( std::size_t i = 0; i < personsArray.size( ); ++i ) {
-        QJsonObject personObject = personsArray[i].toObject( );
-        Person person;
-        person.read( personObject );
-        persons.push_back( person );
-    }
+    content = content.fromJson( data );
 }
 
 

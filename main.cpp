@@ -1,27 +1,36 @@
 
 #include <vector>
 #include <iostream>
-
 #include <QString>
-
+#include <QJsonDocument>
 #include "freeFunctions.h"
 #include "Person.h"
-#include "LogicError.h"
-#include "FileError.h"
 
 int main( )
 {
-    // Data
+    // Input data
     Person david( "David", "White" );
     Person ivan( "Ivan", "Green" );
-    std::vector<Person> personsOut;
-    personsOut.push_back( david );
-    personsOut.push_back( ivan );
+    std::vector<Person> persons;
+    persons.push_back( david );
+    persons.push_back( ivan );
 
-    // Write data to the file
+    // Parse the person array to the Json-content
+    QJsonDocument content;
+    try {
+        parsePersonsToContent( persons, content );
+    } catch ( const LogicError &e ) {
+        std::cerr << e.what( ) << std::endl;
+        return 1;
+    } catch ( ... ) {
+        std::cerr << "Error: unknown exception" << std::endl;
+        return 1;
+    }
+
+    // Write the Json-content to the file
     QString fileName = "Persons.json";
     try {
-        writeData( fileName, personsOut );
+        writeData( fileName, content );
     } catch ( const LogicError &e ) {
         std::cerr << e.what( ) << std::endl;
         return 1;
@@ -33,10 +42,10 @@ int main( )
         return 1;
     }
 
-    // Read data from the file
-    std::vector<Person> personsIn;
+    // Read the Json-content from the file
+    QJsonDocument readContent;
     try {
-        readData( fileName, personsIn );
+        readData( fileName, readContent );
     } catch ( const LogicError &e ) {
         std::cerr << e.what( ) << std::endl;
         return 1;
@@ -48,9 +57,21 @@ int main( )
         return 1;
     }
 
-    // Print data
+    // Parse the Json-content to the person array
+    std::vector<Person> readPersons;
     try {
-        printData( personsIn );
+        parseContentToPersons( readContent, readPersons );
+    } catch ( const LogicError &e ) {
+        std::cerr << e.what( ) << std::endl;
+        return 1;
+    } catch ( ... ) {
+        std::cerr << "Error: unknown exception" << std::endl;
+        return 1;
+    }
+
+    // Print the person array to the screen
+    try {
+        printData( readPersons );
     } catch ( const LogicError &e ) {
         std::cerr << e.what( ) << std::endl;
         return 1;

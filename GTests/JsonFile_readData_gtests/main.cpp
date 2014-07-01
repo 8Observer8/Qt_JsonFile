@@ -1,18 +1,17 @@
 
-#include <vector>
 #include <QString>
+#include <QJsonDocument>
 #include "gtest/gtest.h"
 #include "freeFunctions.h"
-#include "Person.h"
-#include "EmptyArgument.h"
 
 TEST( readData001, emptyArgumentTest )
 {
     QString fileName = "";
-    std::vector<Person> persons;
+
+    QJsonDocument content;
 
     ASSERT_THROW( {
-                      readData( fileName, persons );
+                      readData( fileName, content );
                   }, EmptyArgument );
 }
 

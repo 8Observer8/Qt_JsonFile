@@ -1,23 +1,31 @@
 
-#include <vector>
 #include <QString>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include "gtest/gtest.h"
 #include "freeFunctions.h"
-#include "EmptyArgument.h"
-#include "Person.h"
 
 TEST( writeData001, emptyArgumentTest )
 {
     QString fileName = "";
 
+    QJsonDocument content;
+    QJsonArray personsObjectArray;
+    // Add the first person to the array
+    QJsonObject davidObject;
     Person david( "David", "White" );
-    Person ivan( "Ivan", "Ivanov" );
-    std::vector<Person> persons;
-    persons.push_back( david );
-    persons.push_back( ivan );
+    david.write( davidObject );
+    personsObjectArray.append( davidObject );
+    // Add the second person to the array
+    QJsonObject ivanObject;
+    Person ivan( "Ivan", "Green" );
+    ivan.write( ivanObject );
+    personsObjectArray.append( ivanObject );
+    // Set the content
+    content.setArray( personsObjectArray );
 
     ASSERT_THROW( {
-                      writeData( fileName, persons );
+                      writeData( fileName, content );
                   }, EmptyArgument );
 }
 
@@ -25,10 +33,10 @@ TEST( writeData002, emptyArgumentTest )
 {
     QString fileName = "output.json";
 
-    std::vector<Person> persons;
+    QJsonDocument content;
 
     ASSERT_THROW( {
-                      writeData( fileName, persons );
+                      writeData( fileName, content );
                   }, EmptyArgument );
 }
 
